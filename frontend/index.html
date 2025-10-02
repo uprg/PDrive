@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDrive</title>
+</head>
+<body>
+    <input type="file" id="file_input"/>
+
+    <script>
+        const file_input = window.document.getElementById("file_input")
+        // const ws_client = new WebSocket("ws://localhost:3000")
+        
+        file_input.addEventListener("change", async () => {
+            for (let i=0; i < file_input.files.length; i++){
+
+                const file = file_input.files[i]
+
+                console.log(file)
+
+                const reader = new FileReader()
+
+                console.log(reader)
+
+                reader.onload = async () => {
+                    const file_name = file.name
+                    const file_type = file.type
+
+                    const reader_result = reader.result
+
+                    const file_metadata = reader_result.split(",")[0]
+                    const file_base64_data = reader_result.split(",")[1]
+                    
+                    console.log(file_name)
+                    console.log(file_type)
+                    console.log(file_metadata)
+                    console.log(file_base64_data)
+
+                    const payload = {
+                        file_name,
+                        file_type,
+                        file_metadata,
+                        file_base64_data
+                    }
+
+                    // ws_client.send(JSON.stringify(payload))
+
+                    const http_request = await fetch("http://localhost:3000/upload", {
+                        body: JSON.stringify(payload),
+                        headers: {"Content-Type": "application/json"},
+                        method: "POST"
+                    })
+
+                    console.log(await http_request.status)
+                }
+
+                reader.readAsDataURL(file)
+            }
+        })
+
+    </script>
+</body>
+</html>
