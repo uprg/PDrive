@@ -16,16 +16,36 @@
 const http = require("http")
 const fs = require("fs")
 
+/**
+ * 
+ * create http web server
+ */
+
 const server = http.createServer(async (req, res) => {
 
+    /**
+     * 
+     * Cross Origin Config
+     */
+    
     res.setHeader("Access-Control-Allow-Origin", "*")
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
     res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+
+    /**
+     * 
+     * Global options handler
+     */
 
     if (req.method === "OPTIONS"){
         res.writeHead(204)
         return res.end()
     }
+
+    /**
+     * 
+     * file upload route
+     */
 
     if (req.method === "POST" && req.url === "/upload"){
         let body = ""
@@ -36,8 +56,9 @@ const server = http.createServer(async (req, res) => {
         })
 
         req.on("end", async () => {
-            const request_data = JSON.parse(body)
+            const request_data = JSON.parse(body) // json as string
             const data_buffer = Buffer.from(request_data.file_base64_data, "base64")
+
             await fs.promises.writeFile(request_data.file_name, data_buffer)
 
             res.writeHead(200, {"Content-Type": "text/plain"})
@@ -49,5 +70,10 @@ const server = http.createServer(async (req, res) => {
         res.end("route does not exists!")
     }
 })
+
+/**
+ * 
+ * server listening on 3000
+ */
 
 server.listen(3000, () => {console.log("listening on 3000...")})
